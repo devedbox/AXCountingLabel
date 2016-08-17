@@ -15,6 +15,7 @@
 		013514181D62BBAD003BDCEA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 013514161D62BBAD003BDCEA /* LaunchScreen.storyboard */; };
 		013514231D62BBAD003BDCEA /* AXCountingLabelTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 013514221D62BBAD003BDCEA /* AXCountingLabelTests.m */; };
 		0135142E1D62BBAD003BDCEA /* AXCountingLabelUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0135142D1D62BBAD003BDCEA /* AXCountingLabelUITests.m */; };
+		0135143D1D62BD43003BDCEA /* AXCountingLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0135143C1D62BD43003BDCEA /* AXCountingLabel.m */; };
 		EAD1B62C59F93F6D7678C63F /* libPods-AXCountingLabel.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C647F618DE84D9BE1F4D0AAD /* libPods-AXCountingLabel.a */; };
 /* End PBXBuildFile section */
 
@@ -52,6 +53,8 @@
 		013514291D62BBAD003BDCEA /* AXCountingLabelUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AXCountingLabelUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0135142D1D62BBAD003BDCEA /* AXCountingLabelUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AXCountingLabelUITests.m; sourceTree = "<group>"; };
 		0135142F1D62BBAD003BDCEA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0135143B1D62BD43003BDCEA /* AXCountingLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AXCountingLabel.h; path = AXCountingLabel/AXCountingLabel.h; sourceTree = "<group>"; };
+		0135143C1D62BD43003BDCEA /* AXCountingLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AXCountingLabel.m; path = AXCountingLabel/AXCountingLabel.m; sourceTree = "<group>"; };
 		4B9DFF92935060536D5CFE7B /* Pods-AXCountingLabel.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AXCountingLabel.release.xcconfig"; path = "Pods/Target Support Files/Pods-AXCountingLabel/Pods-AXCountingLabel.release.xcconfig"; sourceTree = "<group>"; };
 		C647F618DE84D9BE1F4D0AAD /* libPods-AXCountingLabel.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AXCountingLabel.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCD16DC2F1EE076CA8A72263 /* Pods-AXCountingLabel.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AXCountingLabel.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AXCountingLabel/Pods-AXCountingLabel.debug.xcconfig"; sourceTree = "<group>"; };
@@ -112,6 +115,7 @@
 				0135140C1D62BBAD003BDCEA /* AppDelegate.m */,
 				0135140E1D62BBAD003BDCEA /* ViewController.h */,
 				0135140F1D62BBAD003BDCEA /* ViewController.m */,
+				0135143E1D62BD46003BDCEA /* AXCountingLabel */,
 				013514111D62BBAD003BDCEA /* Main.storyboard */,
 				013514141D62BBAD003BDCEA /* Assets.xcassets */,
 				013514161D62BBAD003BDCEA /* LaunchScreen.storyboard */,
@@ -145,6 +149,15 @@
 				0135142F1D62BBAD003BDCEA /* Info.plist */,
 			);
 			path = AXCountingLabelUITests;
+			sourceTree = "<group>";
+		};
+		0135143E1D62BD46003BDCEA /* AXCountingLabel */ = {
+			isa = PBXGroup;
+			children = (
+				0135143B1D62BD43003BDCEA /* AXCountingLabel.h */,
+				0135143C1D62BD43003BDCEA /* AXCountingLabel.m */,
+			);
+			name = AXCountingLabel;
 			sourceTree = "<group>";
 		};
 		8405F55D0D8611E9757709AC /* Pods */ = {
@@ -345,6 +358,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0135143D1D62BD43003BDCEA /* AXCountingLabel.m in Sources */,
 				013514101D62BBAD003BDCEA /* ViewController.m in Sources */,
 				0135140D1D62BBAD003BDCEA /* AppDelegate.m in Sources */,
 				0135140A1D62BBAD003BDCEA /* main.m in Sources */,
