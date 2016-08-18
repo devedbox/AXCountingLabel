@@ -95,6 +95,8 @@
     [super layoutSublayersOfLayer:layer];
     
     _gradientLayer.frame = self.layer.bounds;
+    
+    [self updateTextPath];
 }
 #pragma mark - Getters
 - (CADisplayLink *)display {
@@ -354,7 +356,7 @@
         CGPathRef path = [UIBezierPath bezierPathForString:self.text withFont:self.font].CGPath;
         _shapeLayer.path = path;
         CGRect pathBounds = CGPathGetBoundingBox(path);
-        _shapeLayer.frame = CGRectMake(0, CGRectGetHeight(self.frame)*.5 - CGRectGetHeight(pathBounds)*.5, CGRectGetWidth(self.frame), CGRectGetHeight(pathBounds));
+        _shapeLayer.frame = CGRectMake(0, (long)(CGRectGetHeight(self.bounds)*.5 - ceil(CGRectGetHeight(pathBounds))*.5), CGRectGetWidth(self.frame), ceil(CGRectGetHeight(pathBounds)));
         
         // Set text color to clear color if needed.
         if (![super.textColor isEqual:[UIColor clearColor]]) {
