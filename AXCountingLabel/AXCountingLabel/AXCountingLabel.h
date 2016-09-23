@@ -67,6 +67,10 @@ typedef NS_ENUM(NSInteger, AXCountingLabelCountingSubformat) {
 @end
 
 @interface AXCountingLabel : UILabel
+{
+    @protected
+    NSTimeInterval _remaining;
+}
 /// Delegate.
 @property(assign, nonatomic) id<AXCountingLabelDelegate> delegate;
 /// Format of counting.
@@ -78,14 +82,12 @@ typedef NS_ENUM(NSInteger, AXCountingLabelCountingSubformat) {
 ///
 /// @default Default is -1. When the value of threshold is less than 0.0, threshold does not effect. Otherwise, it does.
 @property(assign, nonatomic) NSTimeInterval threshold;
+/// Time interval.
+@property(readonly, nonatomic) NSTimeInterval timeInterval;
 /// Remaining counted time of label.
 @property(readonly, nonatomic) NSTimeInterval remaining;
-/// Stroke color. Defaults is orange color.
-@property(strong, nonatomic) UIColor *gradientColor;
-/// Stroke end color. Defaults is red color.
-@property(strong, nonatomic) UIColor *gradientEndColor;
-/// Gradient layer of super layer. Default is YES.
-@property(assign, nonatomic) BOOL gradientEnabled;
+/// Is paused.
+@property(readonly, nonatomic, getter=isPaused) BOOL isPaused;
 /// Start counting with a time interval in future.
 /// @discussion The time interval must be the tiem in future. If the time interval is in past, counting will not work.
 ///
@@ -96,12 +98,25 @@ typedef NS_ENUM(NSInteger, AXCountingLabelCountingSubformat) {
 /// Pause counting.
 ///
 - (void)pauseCounting;
+/// Continue counting.
+///
+- (void)continueCounting;
 /// Restart counting.
 ///
 - (void)restartCounting;
 /// Stop counting.
 ///
 - (void)stopCounting;
+#pragma mark - Subclasses
+/// Get the from value for animation.
+///
+- (NSNumber *)reachableFromValue;
+/// Get the to value for animation.
+/// 
+- (NSNumber *)reachableToValue;
+/// Updating remaining time interval.
+///
+- (void)updateRemainingWithInterval:(NSTimeInterval)interval;
 @end
 
 @interface AXCountingLabel (Unavailable)

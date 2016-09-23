@@ -24,28 +24,26 @@
 //  SOFTWARE.
 
 #import "AXCountingLabel.h"
-#import <AXCGPathFromString/UIBezierPath+TextPaths.h>
+#import <pop/POP.h>
 
 @interface AXCountingLabel ()
 {
     AXCountingLabelCountingFormat _format;
     UIColor *_textColor;
+    
+    NSTimeInterval _timeInterval;
+    
+    BOOL _isPaused;
 }
-/// Display link.
-@property(strong, nonatomic) CADisplayLink *display;
-/// Time interval.
-@property(assign, nonatomic) NSTimeInterval timeInterval;
-/// Counting time interval.
-@property(assign, nonatomic) NSTimeInterval countingTimeInterval;
-/// Counting time.
-@property(assign, nonatomic) NSInteger countingTime;
+/// Text updating animatable property.
+@property(strong, nonatomic) POPAnimatableProperty *textUpdatingProperty;
+/// Text updating animation.
+@property(strong, nonatomic) POPBasicAnimation *textUpdatingAnimation;
 /// Completion block.
 @property(copy, nonatomic) dispatch_block_t completion;
-/// Gradient layer.
-@property(strong, nonatomic) CAGradientLayer *gradientLayer;
-/// Shape layer.
-@property(strong, nonatomic) CAShapeLayer *shapeLayer;
 @end
+
+static NSString *const kAXCountingAnimationKey = @"counting";
 
 @implementation AXCountingLabel
 #pragma mark - Initializer
@@ -79,72 +77,41 @@
 - (void)initializer {
     _countingSubformat = AXCountingLabelCountingPercentFormat;
     _threshold = -1.0;
-    _countingTimeInterval = 99.0;
-    _countingTime = 60;
-    _gradientEnabled = YES;
-    _gradientColor = [UIColor orangeColor];
-    _gradientEndColor = [UIColor redColor];
-    
-    [self.layer addSublayer:self.gradientLayer];
-    _gradientLayer.mask = self.shapeLayer;
-    [self updateTextPath];
 }
 
 #pragma mark - Override
-- (void)layoutSublayersOfLayer:(CALayer *)layer {
-    [super layoutSublayersOfLayer:layer];
-    
-    _gradientLayer.frame = self.layer.bounds;
-    
-    [self updateTextPath];
+- (void)dealloc {
+    [self stopCounting];
 }
 #pragma mark - Getters
-- (CADisplayLink *)display {
-    if (_display) return _display;
-    _display = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayHandler:)];
-    return _display;
+- (POPAnimatableProperty *)textUpdatingProperty {
+    if (_textUpdatingProperty) return _textUpdatingProperty;
+    POPAnimatableProperty *property = [POPAnimatableProperty propertyWithName:kAXCountingAnimationKey initializer:^(POPMutableAnimatableProperty *prop) {
+        // write value
+        prop.writeBlock = ^(AXCountingLabel *label, const CGFloat values[]) {
+            [label setTextWithTimeInterval:values[0]];
+        };
+    }];
+    _textUpdatingProperty = property;
+    return property;
+}
+
+- (POPBasicAnimation *)textUpdatingAnimation {
+    if (_textUpdatingAnimation) return _textUpdatingAnimation;
+    _textUpdatingAnimation = [POPBasicAnimation linearAnimation];
+    _textUpdatingAnimation.property = self.textUpdatingProperty;
+    return _textUpdatingAnimation;
 }
 
 - (NSTimeInterval)remaining {
-    return _timeInterval;
+    return _remaining;
 }
 
 - (AXCountingLabelCountingFormat)countingFormat {
     return _format;
 }
 
-- (CAGradientLayer *)gradientLayer {
-    if (_gradientLayer) return _gradientLayer;
-    _gradientLayer = [CAGradientLayer layer];
-    _gradientLayer.startPoint = CGPointMake(.0, .5);
-    _gradientLayer.endPoint = CGPointMake(1.0, .5);
-    _gradientLayer.colors = @[(id)_gradientColor.CGColor, (id)_gradientEndColor.CGColor];
-    return _gradientLayer;
-}
-
-- (CAShapeLayer *)shapeLayer {
-    if (_shapeLayer) return _shapeLayer;
-    _shapeLayer = [CAShapeLayer layer];
-    return _shapeLayer;
-}
-
 #pragma mark - Setters
-
-- (void)setGradientColor:(UIColor *)gradientColor {
-    _gradientColor = gradientColor;
-    [self setStrokeColors];
-}
-
-- (void)setGradientEndColor:(UIColor *)gradientEndColor {
-    _gradientEndColor = gradientEndColor;
-    [self setStrokeColors];
-}
-
-- (void)setGradientEnabled:(BOOL)gradientEnabled {
-    _gradientEnabled = gradientEnabled;
-    [self updateTextPath];
-}
-
 - (void)setTextColor:(UIColor *)textColor {
     _textColor = textColor;
     [super setTextColor:textColor];
@@ -163,120 +130,64 @@
     // Do work.
     //
     _timeInterval = time - now;
-    // Start display link.
-    [self startDisplayLink];
-    // Set text content.
-    //
+
+    self.textUpdatingAnimation.fromValue = [self reachableFromValue];
+    _textUpdatingAnimation.toValue = [self reachableToValue];
+    _textUpdatingAnimation.duration = _timeInterval;
+    __weak typeof(self) wself = self;
+    _textUpdatingAnimation.completionBlock = ^(POPAnimation *ani, BOOL finished) {
+        if (finished) {
+            if (wself.completion) {
+                wself.completion();
+            }
+        }
+    };
     
-    [self setTextWithTimeInterval:_countingTimeInterval];
+    [self pop_removeAnimationForKey:kAXCountingAnimationKey];
+    [self pop_addAnimation:_textUpdatingAnimation forKey:kAXCountingAnimationKey];
 }
 
 - (void)pauseCounting {
-    [self pauseDisplayLink];
+    _isPaused = YES;
+    [self pop_removeAnimationForKey:kAXCountingAnimationKey];
+}
+
+- (void)continueCounting {
+    _isPaused = NO;
+    _textUpdatingAnimation.fromValue = [self reachableFromValue];
+    _textUpdatingAnimation.toValue = [self reachableToValue];
+    _textUpdatingAnimation.duration = [self remaining];
+    [self pop_addAnimation:_textUpdatingAnimation forKey:kAXCountingAnimationKey];
 }
 
 - (void)restartCounting {
-    [self restartDisplayLink];
+    [self stopCounting];
+    [self startCountingWithTime:_timeInterval completion:_completion];
 }
 
 - (void)stopCounting {
-    [self stopDisplayLink];
+    [self pop_removeAnimationForKey:kAXCountingAnimationKey];
+    _timeInterval = 0.0;
+    _remaining = 0.0;
 }
 
 #pragma mark - Private
-- (void)startDisplayLink {
-    if (_display || _display.paused) {
-        [self stopDisplayLink];
-    }
-    [self.display addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-    
-    _countingTime = 60;
-    switch (_countingSubformat) {
-        case AXCountingLabelCountingMillesimalFormat:
-            _countingTimeInterval = 999.0;
-            break;
-        default:
-            _countingTimeInterval = 99.0;
-            break;
-    }
-}
-
-- (void)pauseDisplayLink {
-    if (self.display.paused) {
-        return;
-    }
-    [self.display setPaused:YES];
-}
-
-- (void)restartDisplayLink {
-    if (!self.display.paused) {
-        return;
-    }
-    [self.display setPaused:NO];
-}
-
-- (void)stopDisplayLink {
-    if (!_display) {
-        return;
-    }
-    [self.display invalidate];
-    _display = nil;
-}
-
-- (void)displayHandler:(CADisplayLink *)sender {
-    // Reduce the counting time.
-    switch (_countingSubformat) {
-        case AXCountingLabelCountingMillesimalFormat:
-            _countingTimeInterval-=16.5;
-            break;
-        default:
-            _countingTimeInterval-=1.65;
-            break;
-    }
-    _countingTime--;
-    if (_countingTimeInterval <= 0 || _countingTime < 0) {
-        _timeInterval--;
-        switch (_countingSubformat) {
-            case AXCountingLabelCountingMillesimalFormat:
-                _countingTimeInterval = 999.0;
-                break;
-            default:
-                _countingTimeInterval = 99.0;
-                break;
-        }
-        _countingTime = 60;
-    }
-    
-    if (_timeInterval <= _threshold) {
-        if (_delegate && [_delegate respondsToSelector:@selector(countingLabelDidReachThreshold:)]) {
-            [_delegate countingLabelDidReachThreshold:self];
-        }
-    }
-    
-    if (_timeInterval <= 0) {
-        _timeInterval = 0.0;
-        _countingTimeInterval = 0.0;
-        [self stopDisplayLink];
-        if (_completion) {
-            _completion();
-        }
-    }
-    
-    [self setTextWithTimeInterval:_countingTimeInterval];
-}
 
 - (void)setTextWithTimeInterval:(NSTimeInterval)timeInterval {
+    [self updateRemainingWithInterval:timeInterval];
+    // Get the secs of time interval.
+    NSInteger secs = (int)timeInterval % 60;
     // Get minutes of time interval.
-    NSInteger minutes = _timeInterval / 60.0;
+    NSInteger minutes = timeInterval / 60;
     // Get hours of time interval.
-    NSInteger hours = _timeInterval / 3600.0;
+    NSInteger hours = minutes / 60;
     // Get days of time interval.
     NSInteger days = hours / 24;
     
     // Set fromat.
     AXCountingLabelCountingFormat format;
     
-    if (_timeInterval < 60) {
+    if (timeInterval < 60) {
         _format = AXCountingLabelCountingSecFormat;
     } else if (minutes < 60) {
         _format = AXCountingLabelCountingMinFormat;
@@ -290,82 +201,60 @@
     // Set text content.
     switch (format) {
         case AXCountingLabelCountingMsecFormat:
-            super.text = [NSString stringWithFormat:@"%ld", (long)(((long)_timeInterval)*1000+timeInterval)];
+            super.text = [NSString stringWithFormat:@"%ld", (long)timeInterval];
             break;
         case AXCountingLabelCountingSecFormat:
             switch (_countingSubformat) {
                 case AXCountingLabelCountingMillesimalFormat:
-                    super.text = [NSString stringWithFormat:@"%.2ld:%.3ld", (long)_timeInterval, (long)timeInterval];
+                    super.text = [NSString stringWithFormat:@"%.2ld:%.3ld", (long)secs, (long)(timeInterval*1000)%1000];
                     break;
                 default:
-                    super.text = [NSString stringWithFormat:@"%.2ld:%.2ld", (long)_timeInterval, (long)timeInterval];
+                    super.text = [NSString stringWithFormat:@"%.2ld:%.2ld", (long)secs, (long)(timeInterval*100)%100];
                     break;
             }
             break;
         case AXCountingLabelCountingMinFormat:
             switch (_countingSubformat) {
                 case AXCountingLabelCountingMillesimalFormat:
-                    super.text = [NSString stringWithFormat:@"%.2ld:%.2ld:%.3ld", minutes, ((long)_timeInterval % 60), (long)timeInterval];
+                    super.text = [NSString stringWithFormat:@"%.2ld:%.2ld:%.3ld", minutes, secs, (long)(timeInterval*1000)%1000];
                     break;
                 default:
-                    super.text = [NSString stringWithFormat:@"%.2ld:%.2ld:%.2ld", minutes, ((long)_timeInterval % 60), (long)timeInterval];
+                    super.text = [NSString stringWithFormat:@"%.2ld:%.2ld:%.2ld", minutes, secs, (long)(timeInterval*100)%100];
                     break;
             }
             break;
         case AXCountingLabelCountingHourFormat:
             switch (_countingSubformat) {
                 case AXCountingLabelCountingMillesimalFormat:
-                    super.text = [NSString stringWithFormat:@"%.2ld:%.2ld:%.2ld:%.3ld", hours, minutes % 60, ((long)_timeInterval % 60), (long)timeInterval];
+                    super.text = [NSString stringWithFormat:@"%.2ld:%.2ld:%.2ld:%.3ld", hours, minutes, secs, (long)(timeInterval*1000)%1000];
                     break;
                 default:
-                    super.text = [NSString stringWithFormat:@"%.2ld:%.2ld:%.2ld:%.2ld", hours, minutes % 60, ((long)_timeInterval % 60), (long)timeInterval];
+                    super.text = [NSString stringWithFormat:@"%.2ld:%.2ld:%.2ld:%.2ld", hours, minutes, secs, (long)(timeInterval*100)%100];
                     break;
             }
             break;
         default:
             switch (_countingSubformat) {
                 case AXCountingLabelCountingMillesimalFormat:
-                    super.text = [NSString stringWithFormat:@"%ld:%.2ld:%.2ld:%.2ld:%.3ld", days, hours%24, minutes % 60, ((long)_timeInterval % 60), (long)timeInterval];
+                    super.text = [NSString stringWithFormat:@"%ld:%.2ld:%.2ld:%.2ld:%.3ld", days, hours, minutes, secs, (long)(timeInterval*1000)%1000];
                     break;
                 default:
-                    super.text = [NSString stringWithFormat:@"%ld:%.2ld:%.2ld:%.2ld:%.2ld", days, hours%24, minutes % 60, ((long)_timeInterval % 60), (long)timeInterval];
+                    super.text = [NSString stringWithFormat:@"%ld:%.2ld:%.2ld:%.2ld:%.2ld", days, hours, minutes, secs, (long)(timeInterval*100)%100];
                     break;
             }
             break;
     }
-    // Update text path.
-    [self updateTextPath];
 }
 
-- (void)setStrokeColors {
-    NSMutableArray *colors = [NSMutableArray array];
-    if (_gradientColor != nil) {
-        [colors addObject:(id)_gradientColor.CGColor];
-    }
-    if (_gradientEndColor != nil) {
-        [colors addObject:(id)_gradientEndColor.CGColor];
-    }
-    _gradientLayer.colors = colors;
+- (NSNumber *)reachableToValue {
+    return @(0.0);
 }
 
-- (void)updateTextPath {
-    if (_gradientEnabled) {
-        [self.layer addSublayer:_gradientLayer];
-        _gradientLayer.mask = _shapeLayer;
-        // Set path of text.
-        CGPathRef path = [UIBezierPath bezierPathForString:self.text withFont:self.font].CGPath;
-        _shapeLayer.path = path;
-        CGRect pathBounds = CGPathGetBoundingBox(path);
-        _shapeLayer.frame = CGRectMake(0, (long)(CGRectGetHeight(self.bounds)*.5 - ceil(CGRectGetHeight(pathBounds))*.5), CGRectGetWidth(self.frame), ceil(CGRectGetHeight(pathBounds)));
-        
-        // Set text color to clear color if needed.
-        if (![super.textColor isEqual:[UIColor clearColor]]) {
-            super.textColor = [UIColor clearColor];
-        }
-    } else {
-        _gradientLayer.mask = nil;
-        [_gradientLayer removeFromSuperlayer];
-        super.textColor = _textColor;
-    }
+- (NSNumber *)reachableFromValue {
+    return @(0.0);
+}
+
+- (void)updateRemainingWithInterval:(NSTimeInterval)interval {
+    _remaining = interval;
 }
 @end

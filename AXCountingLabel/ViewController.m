@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "AXCountingLabel/AXCountingLabel.h"
+#import "AXCountingDownLabel.h"
 
 @interface ViewController ()<AXCountingLabelDelegate>
 /// Counting label.
@@ -53,12 +54,12 @@
     [_label pauseCounting];
 }
 
-- (IBAction)restart:(id)sender {
-    [_label restartCounting];
+- (IBAction)continueCounting:(id)sender {
+    [_label continueCounting];
 }
 
-- (IBAction)swich:(UISwitch *)sender {
-    _label.gradientEnabled = sender.on;
+- (IBAction)restart:(id)sender {
+    [_label restartCounting];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -79,7 +80,7 @@
         [alert addAction:[UIAlertAction actionWithTitle:@"继续" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
             [alert dismissViewControllerAnimated:YES completion:NULL];
             label.threshold = -1;
-            [label restartCounting];
+            [label continueCounting];
         }]];
         [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:NULL]];
         [self presentViewController:alert animated:YES completion:NULL];

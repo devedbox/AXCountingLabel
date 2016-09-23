@@ -1,12 +1,12 @@
 PODS:
-  - AXCGPathFromString (0.0.1)
+  - pop (1.0.9)
 
 DEPENDENCIES:
-  - AXCGPathFromString
+  - pop
 
 SPEC CHECKSUMS:
-  AXCGPathFromString: f4b5f1d9048e13b09098ec1c9bfa481121f940ec
+  pop: f667631a5108a2e60d9e8797c9b32ddaf2080bce
 
-PODFILE CHECKSUM: cd757dee7ae75026d9ab9b8b6fe7c3a5a8abc4f0
+PODFILE CHECKSUM: e748ca49a8238f9efeca2cd2dd712cf5756873cf
 
-COCOAPODS: 1.1.0.beta.1
+COCOAPODS: 1.1.0.beta.2
