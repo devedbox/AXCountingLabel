@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "AXCountingLabel"
-  s.version      = "0.2.0"
+  s.version      = "0.2.1"
   s.summary      = "A label shows counting time."
   s.description  = <<-DESC
                     A label shows counting time on iOS platform.
@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.author             = { "aiXing" => "862099730@qq.com" }
   s.platform     = :ios, "7.0"
 
-  s.source       = { :git => "https://github.com/devedbox/AXCountingLabel.git", :tag => "0.2.0" }
+  s.source       = { :git => "https://github.com/devedbox/AXCountingLabel.git", :tag => "0.2.1" }
   s.source_files  = "AXCountingLabel/AXCountingLabel/*.{h,m}"
 
   s.frameworks = "UIKit", "Foundation"

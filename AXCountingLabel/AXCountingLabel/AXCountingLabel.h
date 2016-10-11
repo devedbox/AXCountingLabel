@@ -53,6 +53,8 @@ typedef NS_ENUM(NSInteger, AXCountingLabelCountingFormat) {
 /// Sub format of counting label.
 ///
 typedef NS_ENUM(NSInteger, AXCountingLabelCountingSubformat) {
+    /// None.
+    AXCountingLabelCountingInvalidMesFormat,
     /// Percent fromat.
     AXCountingLabelCountingPercentFormat,
     /// Millesimal format.
