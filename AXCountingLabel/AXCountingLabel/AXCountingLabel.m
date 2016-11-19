@@ -219,39 +219,39 @@ static NSString *const kAXCountingAnimationKey = @"counting";
         case AXCountingLabelCountingMinFormat:
             switch (_countingSubformat) {
                 case AXCountingLabelCountingMillesimalFormat:
-                    super.text = [NSString stringWithFormat:@"%.2ld:%.2ld:%.3ld", minutes, secs, (long)(timeInterval*1000)%1000];
+                    super.text = [NSString stringWithFormat:@"%.2ld:%.2ld:%.3ld", minutes%60, secs, (long)(timeInterval*1000)%1000];
                     break;
                 case AXCountingLabelCountingPercentFormat:
-                    super.text = [NSString stringWithFormat:@"%.2ld:%.2ld:%.2ld", minutes, secs, (long)(timeInterval*100)%100];
+                    super.text = [NSString stringWithFormat:@"%.2ld:%.2ld:%.2ld", minutes%60, secs, (long)(timeInterval*100)%100];
                     break;
                 default:
-                    super.text = [NSString stringWithFormat:@"%.2ld:%.2ld", minutes, secs];
+                    super.text = [NSString stringWithFormat:@"%.2ld:%.2ld", minutes%60, secs];
                     break;
             }
             break;
         case AXCountingLabelCountingHourFormat:
             switch (_countingSubformat) {
                 case AXCountingLabelCountingMillesimalFormat:
-                    super.text = [NSString stringWithFormat:@"%.2ld:%.2ld:%.2ld:%.3ld", hours, minutes, secs, (long)(timeInterval*1000)%1000];
+                    super.text = [NSString stringWithFormat:@"%.2ld:%.2ld:%.2ld:%.3ld", hours%24, minutes%60, secs, (long)(timeInterval*1000)%1000];
                     break;
                 case AXCountingLabelCountingPercentFormat:
-                    super.text = [NSString stringWithFormat:@"%.2ld:%.2ld:%.2ld:%.2ld", hours, minutes, secs, (long)(timeInterval*100)%100];
+                    super.text = [NSString stringWithFormat:@"%.2ld:%.2ld:%.2ld:%.2ld", hours%24, minutes%60, secs, (long)(timeInterval*100)%100];
                     break;
                 default:
-                    super.text = [NSString stringWithFormat:@"%.2ld:%.2ld:%.2ld", hours, minutes, secs];
+                    super.text = [NSString stringWithFormat:@"%.2ld:%.2ld:%.2ld", hours%24, minutes%60, secs];
                     break;
             }
             break;
         default:
             switch (_countingSubformat) {
                 case AXCountingLabelCountingMillesimalFormat:
-                    super.text = [NSString stringWithFormat:@"%ld:%.2ld:%.2ld:%.2ld:%.3ld", days, hours, minutes, secs, (long)(timeInterval*1000)%1000];
+                    super.text = [NSString stringWithFormat:@"%ld:%.2ld:%.2ld:%.2ld:%.3ld", days, hours%24, minutes%60, secs, (long)(timeInterval*1000)%1000];
                     break;
                 case AXCountingLabelCountingPercentFormat:
-                    super.text = [NSString stringWithFormat:@"%ld:%.2ld:%.2ld:%.2ld:%.2ld", days, hours, minutes, secs, (long)(timeInterval*100)%100];
+                    super.text = [NSString stringWithFormat:@"%ld:%.2ld:%.2ld:%.2ld:%.2ld", days, hours%24, minutes%60, secs, (long)(timeInterval*100)%100];
                     break;
                 default:
-                    super.text = [NSString stringWithFormat:@"%ld:%.2ld:%.2ld:%.2ld", days, hours, minutes, secs];
+                    super.text = [NSString stringWithFormat:@"%ld:%.2ld:%.2ld:%.2ld", days, hours%24, minutes%60, secs];
                     break;
             }
             break;

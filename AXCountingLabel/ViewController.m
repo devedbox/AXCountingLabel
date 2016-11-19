@@ -25,7 +25,8 @@
 
 - (IBAction)start:(id)sender {
 //    NSDate *date = [NSDate dateWithTimeInterval:222397 sinceDate:[NSDate date]];
-    NSDate *date = [NSDate dateWithTimeInterval:10.0 sinceDate:[NSDate date]];
+//    NSDate *date = [NSDate dateWithTimeInterval:10.0 sinceDate:[NSDate date]];
+    NSDate *date = [NSDate dateWithTimeInterval:10*24*60*60 sinceDate:[NSDate date]];
     _label.threshold = 5.0;
     _label.delegate = self;
     
