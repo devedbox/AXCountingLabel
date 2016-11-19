@@ -1,6 +1,0 @@
-framework module Pods_AXCountingLabel {
-  umbrella header "Pods-AXCountingLabel-umbrella.h"
-
-  export *
-  module * { export * }
-}
