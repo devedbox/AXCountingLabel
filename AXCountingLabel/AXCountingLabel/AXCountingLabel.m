@@ -137,9 +137,7 @@ static NSString *const kAXCountingAnimationKey = @"counting";
     __weak typeof(self) wself = self;
     _textUpdatingAnimation.completionBlock = ^(POPAnimation *ani, BOOL finished) {
         if (finished) {
-            if (wself.completion) {
-                wself.completion();
-            }
+            [wself countingDidFinish];
         }
     };
     
@@ -169,6 +167,12 @@ static NSString *const kAXCountingAnimationKey = @"counting";
     [self pop_removeAnimationForKey:kAXCountingAnimationKey];
     _timeInterval = 0.0;
     _remaining = 0.0;
+}
+
+- (void)countingDidFinish {
+    if (self.completion) {
+        self.completion();
+    }
 }
 
 #pragma mark - Private

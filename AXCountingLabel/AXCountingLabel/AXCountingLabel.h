@@ -119,6 +119,9 @@ typedef NS_ENUM(NSInteger, AXCountingLabelCountingSubformat) {
 /// Updating remaining time interval.
 ///
 - (void)updateRemainingWithInterval:(NSTimeInterval)interval;
+/// Counting did finish.
+///
+- (void)countingDidFinish;
 @end
 
 @interface AXCountingLabel (Unavailable)

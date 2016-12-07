@@ -65,4 +65,11 @@ static NSString *const kAXCountingDownLabelDefaultPlaceholder = @"00:00";
         }
     }
 }
+
+- (void)countingDidFinish {
+    [super countingDidFinish];
+    
+    // The counting down is finished. Do nothing. Show palcehodler to take place.
+    [self setValue:_placeholder?:kAXCountingDownLabelDefaultPlaceholder forKeyPath:@"text"];
+}
 @end
